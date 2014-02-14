@@ -1,5 +1,7 @@
 Router.configure({
-	layoutTemplate: 'layout'
+	layoutTemplate: 'layout',
+	loadingTemplate: 'loading',
+	waitOn: function() { return Meteor.subscribe('posts'); }
 });
 
 Router.map(function() {
@@ -14,3 +16,16 @@ Router.map(function() {
 		path: '/submit'	
 	});
 });
+
+var requireLogin = function() {
+	if (!Meteor.user()) {
+		if (Meteor.loggingIn())
+			this.render(this.loadingTemplate);
+		else
+			this.render('accessDenied');
+		
+		this.stop();
+	}
+}
+
+Router.before(requireLogin, {only: 'postSubmit'})
